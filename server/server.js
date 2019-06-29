@@ -58,7 +58,7 @@ app.use("/api/v1/recommender", limit);
 
 app.get("/", (req, res, next) => {
     res.status(200).json({
-        "message": "Please use the /recommender route to access the API with keys auth & sentence"
+        "message": "Please use the /api/v1/recommender route to access the API with keys auth & sentence"
     });
 });
 
