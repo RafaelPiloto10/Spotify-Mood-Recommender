@@ -1,0 +1,36 @@
+{
+  "name": "spotify-mood-recommender",
+  "version": "1.0.0",
+  "description": "A service that recommends songs from a Spotify playlist based on the \"mood\" from a sentence given.",
+  "main": "./server/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./server/server.js",
+    "start": "node ./server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RafaelPiloto10/Spotify-Mood-Recommender.git"
+  },
+  "keywords": [
+    "Spotify",
+    "Recommender",
+    "Mood"
+  ],
+  "author": "Rafael Piloto (rafaelpiloto10.now.sh)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RafaelPiloto10/Spotify-Mood-Recommender/issues"
+  },
+  "homepage": "https://github.com/RafaelPiloto10/Spotify-Mood-Recommender#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "emotional": "0.0.3",
+    "express": "^4.17.1",
+    "express-rate-limit": "^5.0.0",
+    "node-spotify-api": "^1.1.1",
+    "nodemon": "^1.19.1"
+  }
+}
