@@ -28,10 +28,18 @@ const bodyparser = require('body-parser');
 const limiter = require('express-rate-limit');
 
 const {
-    getSentiment,
     getTracks,
-    findBestSong
-} = require('./spotify-recommender');
+    getSong
+} = require('./spotify-recommender-utils');
+
+const {
+    getSentiment,
+    findBestSong,
+} = require('./spotify-recommender-sentiment');
+
+const {
+    getBestSongFromSong
+} = require('./spotify-recommender-song');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -46,7 +54,7 @@ const route = app.listen(port, async () => {
 });
 
 const limit = limiter({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 10 * 60 * 1000, // 10 minutes
     max: 100 // limit each IP to 100 requests per windowMs
 });
 
@@ -54,16 +62,50 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyparser.json());
 
-app.use("/api/v1/recommender", limit);
+
+app.use(authenticateMiddleware);
+app.use("/api/v1/sentiment", limit);
+app.use("/api/v1/song-title", limit);
 
 app.get("/", (req, res, next) => {
     res.status(200).json({
-        "message": "Please use the /api/v1/recommender route to access the API with keys auth & sentence"
+        "message": "Visit https://github.com/RafaelPiloto10/Spotify-Mood-Recommender"
     });
 });
 
-app.get("/api/v1/recommender", async (req, res, next) => {
-    console.log("Got request!");
+app.get("/api/v1/sentiment", async (req, res, next) => {
+    if (!req.query.sentence) { // Does the sentence key exist?
+        console.error("Sentence missing from request!");
+        res.status(400).json({
+            "ErrorCode": "invalid_request",
+            "Error": "The request is missing a required parameter : sentence"
+        });
+    } else { // We have performed all authentication & ready to provide the services
+        console.log("Processing request with sentence:", req.query.sentence);
+        let sentiment = await getSentiment(req.query.sentence);
+        let best_songs = findBestSong(cached_songs, sentiment);
+        res.status(200).json(best_songs);
+    }
+
+});
+
+app.get("/api/v1/song-title", async (req, res, next) => {
+    if (!req.query.song) { // Does the sentence key exist?
+        console.error("Song title missing from request!");
+        res.status(400).json({
+            "ErrorCode": "invalid_request",
+            "Error": "The request is missing a required parameter : song"
+        });
+    } else { // We have performed all authentication & ready to provide the services
+        console.log("Processing request with song title:", req.query.song);
+        let song = await getSong(req.query.song);
+        let best_songs = await getBestSongFromSong(cached_songs, song);
+        res.status(200).json(best_songs);
+    }
+
+});
+
+function authenticateMiddleware(req, res, next) {
     if (!req.query.auth) { // Does the auth key exist?
         console.error("Auth missing from request!");
         res.status(400).json({
@@ -77,21 +119,17 @@ app.get("/api/v1/recommender", async (req, res, next) => {
             "Error": "Invalid Authorization Code"
         });
     } else {
-        if (!req.query.sentence) { // Does the sentence key exist?
-            console.error("Sentence missing from request!");
-            res.status(400).json({
-                "ErrorCode": "invalid_request",
-                "Error": "The request is missing a required parameter : sentence"
+        if (cached_songs.length == 0) {
+            res.status(503).json({
+                "ErrorCode": "Service Unavailable",
+                "Error": "Cached songs list not yet built"
             });
-        } else { // We have performed all authentication & ready to provide the services
-            console.log("Processing request with sentence:", req.query.sentence);
-            let sentiment = await getSentiment(req.query.sentence);
-            let best_songs = findBestSong(cached_songs, sentiment);
-            res.status(200).json(best_songs);
+        } else {
+            next();
         }
     }
 
-});
+}
 
 setInterval(async () => {
     cached_songs = await getTracks();
