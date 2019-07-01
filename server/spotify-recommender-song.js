@@ -29,7 +29,8 @@ let best_song_error = {
     valence: 1,
     dance_error: 1,
     energy_error: 1,
-    valence_error: 1
+    valence_error: 1,
+    tempo_error: 1
 
 }
 
@@ -44,6 +45,7 @@ let suggested_songs = {
         energy_error: 1,
         loudness_error: 1,
         valence_error: 1,
+        tempo_error: 1
     },
     energetic: {
         name: "",
@@ -55,6 +57,7 @@ let suggested_songs = {
         energy_error: 1,
         loudness_error: 1,
         valence_error: 1,
+        tempo_error: 1
     },
     most_valent: {
         name: "",
@@ -66,6 +69,7 @@ let suggested_songs = {
         energy_error: 1,
         loudness_error: 1,
         valence_error: 1,
+        tempo_error: 1
     }
 };
 
@@ -83,7 +87,7 @@ let suggested_songs = {
  */
 
 
-function getBestSongFromSong(tracks, target_song) {
+function getBestSongFromSong(tracks, target_song, exclude) {
     let bound_1 = Math.min(Math.floor(Math.random() * tracks.length) + 25, tracks.length);
     let bound_2 = Math.max(Math.floor(Math.random() * tracks.length), 0);
 
@@ -115,6 +119,11 @@ function getBestSongFromSong(tracks, target_song) {
 
         let name = song.name;
         if (name == target_song.song.name) continue;
+        if (exclude) {
+            for (const exclude_song of exclude) {
+                if (exclude_song == song.name.toLowerCase() || song.name.toLowerCase().includes(exclude_song)) continue;
+            }
+        }
 
         let artists = song.artists;
 
@@ -122,8 +131,9 @@ function getBestSongFromSong(tracks, target_song) {
         let energy_error = Math.abs(energy - target_song.song_features.energy) / target_song.song_features.energy;
         let loudness_error = Math.abs(loudness - target_song.song_features.loudness) / target_song.song_features.loudness;
         let valence_error = Math.abs(valence - target_song.song_features.valence) / target_song.song_features.valence;
+        let tempo_error = Math.abs(tempo - target_song.song_features.tempo) / target_song.song_features.tempo;
 
-        if (dance_error < best_song_error.dance_error && energy_error < best_song_error.energy_error && valence_error < best_song_error.valence_error) {
+        if (dance_error < best_song_error.dance_error && energy_error < best_song_error.energy_error && valence_error < best_song_error.valence_error && (tempo_error < best_song_error.tempo_error + .05 || tempo_error > best_song_error.tempo_error - .05)) {
             best_song_error = {
                 danceability,
                 energy,
@@ -134,6 +144,7 @@ function getBestSongFromSong(tracks, target_song) {
                 energy_error,
                 loudness_error,
                 valence_error,
+                tempo_error,
                 name,
                 artists: JSON.parse(artists)[0].name,
             }
@@ -150,6 +161,7 @@ function getBestSongFromSong(tracks, target_song) {
                 energy_error,
                 loudness_error,
                 valence_error,
+                tempo_error,
                 name,
                 artists: JSON.parse(artists),
 
@@ -166,6 +178,7 @@ function getBestSongFromSong(tracks, target_song) {
                 energy_error,
                 loudness_error,
                 valence_error,
+                tempo_error,
                 name,
                 artists: JSON.parse(artists),
 
@@ -182,6 +195,7 @@ function getBestSongFromSong(tracks, target_song) {
                 energy_error,
                 loudness_error,
                 valence_error,
+                tempo_error,
                 name,
                 artists: JSON.parse(artists),
 

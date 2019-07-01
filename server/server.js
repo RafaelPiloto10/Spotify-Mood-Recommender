@@ -97,9 +97,9 @@ app.get("/api/v1/song-title", async (req, res, next) => {
             "Error": "The request is missing a required parameter : song"
         });
     } else { // We have performed all authentication & ready to provide the services
-        console.log("Processing request with song title:", req.query.song);
+        console.log("Processing request with song title:", req.query.song, "excluding:", req.query.exclude);
         let song = await getSong(req.query.song);
-        let best_songs = await getBestSongFromSong(cached_songs, song);
+        let best_songs = await getBestSongFromSong(cached_songs, song, req.query.exclude ? req.query.exclude.split(",") : undefined);
         res.status(200).json(best_songs);
     }
 
