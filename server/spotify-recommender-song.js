@@ -88,14 +88,11 @@ let suggested_songs = {
 
 
 function getBestSongFromSong(tracks, target_song, exclude) {
-    let bound_1 = Math.min(Math.floor(Math.random() * tracks.length) + 25, tracks.length);
-    let bound_2 = Math.max(Math.floor(Math.random() * tracks.length), 0);
+    let bound_1 = Math.floor(Math.random() * tracks.length) + 1;
+    let bound_2 = (bound_1 + 50) % tracks.length;
 
     let lower_bound = Math.min(bound_1, bound_2);
     let upper_bound = Math.max(bound_1, bound_2);
-
-    if (bound_1 == bound_2) upper_bound += Math.min(Math.ceil(lower_bound) / 2, tracks.length);
-
 
     let songs = tracks.slice(lower_bound, upper_bound);
 
