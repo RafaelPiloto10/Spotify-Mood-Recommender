@@ -147,7 +147,7 @@ function findBestSong(tracks, sentiment) {
 
 
         let name = song.name;
-        let artists = song.artists;
+        let artists = JSON.parese(song.artists);
 
         let dance_error = Math.abs(danceability - target_song.danceability) / target_song.danceability;
         let energy_error = Math.abs(energy - target_song.energy) / target_song.energy;
